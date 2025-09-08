@@ -1,22 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import { useUserStore } from '@/lib/store/userStore';
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
 import {
-  View,
+  Animated,
+  Dimensions,
+  Easing,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  SafeAreaView,
-  StyleSheet,
-  Dimensions,
-  Animated,
-  Easing,
-  ScrollView,
-  I18nManager
+  View,
 } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useUserStore } from '@/lib/store/userStore';
 // Define user type
 type UserType = 'student' | 'teacher';
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Simple SVG-like icon components
 const StudentIcon = ({ selected }: { selected: boolean }) => (
@@ -146,7 +145,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-    direction: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
   scrollContainer: {
     flexGrow: 1,

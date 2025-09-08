@@ -1,18 +1,44 @@
-import { Stack } from "expo-router";
+import { Header } from "@/components/common";
+import { BottomTabBar } from "@/components/layout/BottomTabBar";
 import colors from "@/config/color";
+import { Tabs } from "expo-router";
+import React from "react";
+import { SafeAreaView, View } from "react-native";
 
 export default function RootLayout() {
   return (
-    <Stack
-      screenOptions={{ contentStyle: { backgroundColor: colors.background } }}
+    <Tabs
+      screenOptions={{
+        headerShown: true,
+        header: () => (
+          <SafeAreaView>
+            <View>
+              <Header />
+            </View>
+          </SafeAreaView>
+        ),
+        tabBarStyle: { display: "none", backgroundColor: colors.background },
+      }}
+      tabBar={(props) => <BottomTabBar {...props} />}
     >
-      <Stack.Screen
+      <Tabs.Screen
         name="index"
         options={{
-          headerShown: false,
-          contentStyle: { backgroundColor: colors.background },
+          title: "الرئيسية",
         }}
       />
-    </Stack>
+      <Tabs.Screen
+        name="create"
+        options={{
+          title: "إنشاء",
+        }}
+      />
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: "الحساب",
+        }}
+      />
+    </Tabs>
   );
 }

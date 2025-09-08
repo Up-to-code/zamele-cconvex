@@ -12,7 +12,11 @@ const TopTabs: React.FC<TopTabsProps> = ({ tabs, activeIndex, onChange }) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={[styles.scroll, styles.rtlRow]}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {items.map((label, idx) => {
           const isActive = activeIndex === idx;
           return (
@@ -40,10 +44,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#E5E5EA',
   },
-  scroll: {
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'flex-start', // Aligns tabs to the right
     paddingHorizontal: 12,
     paddingVertical: 6,
     gap: 4,
+    flexDirection: 'row-reverse', // Ensure normal row direction for proper alignment
+
   },
   tab: {
     paddingHorizontal: 14,
@@ -69,9 +77,6 @@ const styles = StyleSheet.create({
   indicatorActive: {
     backgroundColor: '#007AFF',
   },
-  rtlRow: { flexDirection: 'row-reverse' },
 });
 
 export default TopTabs;
-
-

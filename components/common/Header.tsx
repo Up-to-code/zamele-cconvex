@@ -1,7 +1,20 @@
-import { useUserStore } from '@/lib/store/userStore';
-import { useRouter } from 'expo-router';
 import React from 'react';
-import { I18nManager, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  TouchableOpacity, 
+  Image, 
+  I18nManager, 
+  StatusBar,
+  Platform 
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { shortName } from '@/lib/shortName';
+
+// Set RTL to true for Arabic
+I18nManager.forceRTL(true);
+I18nManager.allowRTL(true);
 
 export interface HeaderProps {
   title?: string;
@@ -11,6 +24,10 @@ export interface HeaderProps {
   onSearchPress?: () => void;
   showNotificationsButton?: boolean;
   onNotificationsPress?: () => void;
+  notificationCount?: number;
+  name?: string;
+  plan?: string;
+  avatarUrl?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -21,71 +38,103 @@ const Header: React.FC<HeaderProps> = ({
   onSearchPress,
   showNotificationsButton = true,
   onNotificationsPress,
+  notificationCount = 0,
+  name = 'المستخدم',
+  plan,
+  avatarUrl
 }) => {
-  const router = useRouter();
-  const { name, avatarUrl, plan } = useUserStore();
-
   const handleBack = () => {
     if (onBackPress) {
       onBackPress();
-      return;
     }
-    if (router.canGoBack()) router.back();
   };
 
   return (
-    <View style={[styles.container, I18nManager.isRTL && styles.containerRtl]}>
-      <View style={[styles.leftArea, I18nManager.isRTL && styles.alignEnd]}>
-        {showBackButton ? (
-          <TouchableOpacity onPress={handleBack} style={styles.backButton} accessibilityRole="button" accessibilityLabel="Back" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Text style={styles.backText}>{I18nManager.isRTL ? '›' : '‹'}</Text>
-          </TouchableOpacity>
-        ) : (
-          <View style={[styles.userInfo, I18nManager.isRTL && styles.rtlRow]}>
-            {avatarUrl ? (
-              <Image source={{ uri: avatarUrl }} style={styles.avatar} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarInitial}>{name?.[0]?.toUpperCase() || 'U'}</Text>
+    <View style={styles.wrapper}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <View style={styles.container}>
+        {/* Left Area - Icons */}
+        <View style={styles.leftArea}>
+          {showNotificationsButton && (
+            <TouchableOpacity 
+              onPress={onNotificationsPress} 
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Notifications"
+            >
+              <Ionicons name="notifications-outline" size={22} color="#333" />
+              {notificationCount > 0 && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>
+                    {notificationCount > 99 ? '99+' : notificationCount}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
+          
+          {showSearchButton && (
+            <TouchableOpacity 
+              onPress={onSearchPress} 
+              style={styles.iconButton}
+              accessibilityRole="button"
+              accessibilityLabel="Search"
+            >
+              <Ionicons name="search" size={22} color="#333" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Center Area - Title */}
+        <View style={styles.centerArea}>
+          {!!title && (
+            <Text style={styles.titleText} numberOfLines={1}>
+              {title}
+            </Text>
+          )}
+        </View>
+
+        {/* Right Area - User Info or Back Button */}
+        <View style={styles.rightArea}>
+          {showBackButton ? (
+            <TouchableOpacity 
+              onPress={handleBack} 
+              style={styles.backButton}
+              accessibilityRole="button"
+              accessibilityLabel="Back"
+            >
+              <Ionicons name="chevron-forward" size={26} color="#007AFF" />
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.userInfo}>
+              <View style={styles.namePlan}>
+                <Text style={styles.nameText} numberOfLines={1}>
+                  {shortName(name )}
+                </Text>
+                {!!plan && (
+                  <Text style={styles.planText}>{plan}</Text>
+                )}
               </View>
-            )}
-            <View style={styles.namePlan}>
-              <Text style={styles.nameText} numberOfLines={1}>
-                {name || 'المستخدم'}
-              </Text>
-              {!!plan && (
-                <Text style={styles.planText}>{plan}</Text>
+              {avatarUrl ? (
+                <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                      <Text style={styles.avatarInitial}>{shortName(name , 2) || 'U'}</Text>
+                </View>
               )}
             </View>
-          </View>
-        )}
-      </View>
-
-      <View style={styles.centerArea}>
-        {!!title && (
-          <Text style={[styles.titleText, I18nManager.isRTL && styles.rtlText]} numberOfLines={1}>
-            {title}
-          </Text>
-        )}
-      </View>
-
-      <View style={[styles.rightArea, I18nManager.isRTL && styles.alignStart]}>
-        {showSearchButton && (
-          <TouchableOpacity onPress={onSearchPress} style={styles.iconButton} accessibilityRole="button" accessibilityLabel="Search" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Text style={styles.iconText}>🔍</Text>
-          </TouchableOpacity>
-        )}
-        {showNotificationsButton && (
-          <TouchableOpacity onPress={onNotificationsPress} style={styles.iconButton} accessibilityRole="button" accessibilityLabel="Notifications" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Text style={styles.iconText}>🔔</Text>
-          </TouchableOpacity>
-        )}
+          )}
+        </View>
       </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  wrapper: {
+    backgroundColor: '#FFFFFF',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+  },
   container: {
     height: 56,
     paddingHorizontal: 16,
@@ -93,111 +142,88 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: '#FFFFFF',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E5EA',
-  },
-  containerRtl: {
-    flexDirection: 'row-reverse',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
   },
   leftArea: {
-    flex: 1,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  alignEnd: {
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
   },
   centerArea: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    marginHorizontal: 10,
   },
   rightArea: {
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    width: 80,
-  },
-  alignStart: {
-    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
   },
   backButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 8,
-    borderRadius: 10,
-  },
-  backText: {
-    fontSize: 28,
-    color: '#007AFF',
+    padding: 8,
   },
   titleText: {
     fontSize: 17,
     fontWeight: '600',
     color: '#000000',
-    fontFamily: 'Cairo_Bold',
-  },
-  rtlText: {
-    textAlign: 'right',
+    textAlign: 'center',
   },
   userInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
   },
-  rtlRow: {
-    flexDirection: 'row-reverse',
-  },
   avatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
   },
   avatarPlaceholder: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#E5E5EA',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#e0e0e0',
     alignItems: 'center',
     justifyContent: 'center',
   },
   avatarInitial: {
-    fontSize: 14,
-    color: '#000000',
-    fontFamily: 'Cairo_Bold',
+    fontSize: 16,
+    color: '#666',
+    fontWeight: 'bold',
   },
   namePlan: {
-    maxWidth: '75%',
+    alignItems: 'flex-end',
   },
   nameText: {
     fontSize: 16,
     color: '#000000',
-    fontFamily: 'Cairo_Bold',
+    fontWeight: '600',
   },
   planText: {
     fontSize: 12,
     color: '#8E8E93',
-    fontFamily: 'Cairo_Medium',
-    textTransform: 'uppercase',
-  },
-  rightAction: {
-    paddingVertical: 6,
-    paddingHorizontal: 6,
-  },
-  rightActionText: {
-    fontSize: 16,
-    color: '#007AFF',
-    fontFamily: 'Cairo_Bold',
+    marginTop: 2,
   },
   iconButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 8,
-    borderRadius: 8,
+    padding: 6,
+    position: 'relative',
   },
-  iconText: {
-    fontSize: 18,
+  badge: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    backgroundColor: '#FF3B30',
+    borderRadius: 9,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: 'bold',
   },
 });
 
 export default Header;
-

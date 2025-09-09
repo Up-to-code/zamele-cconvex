@@ -3,6 +3,8 @@ import TopTabs from '@/components/layout/TopTabs';
 import React, { useState } from 'react';
 import { SafeAreaView, StyleSheet, View, Text } from 'react-native';
 import { FlashList } from '@shopify/flash-list';
+import Events from '@/components/common/events';
+import CategoriesContainer from '@/components/common/categoriesContainer';
 
 // Define the type for our mock posts to match the UniversityPostCard expectations
 interface MockPost {
@@ -163,6 +165,7 @@ const Index = () => {
     <SafeAreaView style={styles.container}>
       <TopTabs tabs={tabs} activeIndex={active} onChange={setActive} />
       <FlashList
+        ListHeaderComponent={ <CategoriesContainer />}
         data={posts}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}

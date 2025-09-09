@@ -83,6 +83,8 @@ function getIconName(routeName: string, focused: boolean): string {
       return focused ? "home" : "home-outline";
     case "account":
       return focused ? "person" : "person-outline";
+    case "groups":
+      return focused ? "people" : "people-outline";
     default:
       return focused ? "ellipse" : "ellipse-outline";
   }

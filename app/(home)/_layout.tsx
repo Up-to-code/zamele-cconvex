@@ -1,7 +1,6 @@
 import { Header } from "@/components/common";
 import { BottomTabBar } from "@/components/layout/BottomTabBar";
-import colors from "@/config/color";
-import { Tabs } from "expo-router";
+ import { Tabs } from "expo-router";
 import React from "react";
 import { SafeAreaView, View } from "react-native";
 import { useUserStore } from "@/lib/store/userStore";
@@ -30,9 +29,9 @@ export default function RootLayout() {
         }}
       />
       <Tabs.Screen
-        name="create"
+        name="groups"
         options={{
-          title: "إنشاء",
+          title: "المجموعات",
         }}
       />
       <Tabs.Screen

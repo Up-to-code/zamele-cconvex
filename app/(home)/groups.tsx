@@ -12,7 +12,7 @@ import {
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
+ import { router } from "expo-router";
 // Define TypeScript interfaces
 interface Group {
   id: string;
@@ -143,7 +143,9 @@ const GroupsScreen = () => {
     const memberAvatars = item.memberAvatars || [];
 
     return (
-      <TouchableOpacity style={styles.groupCard}>
+      <TouchableOpacity style={styles.groupCard}
+       onPress={() => router.push(`/(screens)/groups/[_id]?id=${item.id}`)}
+      >
         <Image
           source={{ uri: item.image }}
           style={[

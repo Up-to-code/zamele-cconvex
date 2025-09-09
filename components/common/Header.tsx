@@ -61,6 +61,7 @@ const Header: React.FC<HeaderProps> = ({
               style={styles.iconButton}
               accessibilityRole="button"
               accessibilityLabel="Notifications"
+              
             >
               <Ionicons name="notifications-outline" size={22} color="#333" />
               {notificationCount > 0 && (

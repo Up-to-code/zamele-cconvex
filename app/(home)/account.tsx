@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -9,9 +9,13 @@ import {
   StatusBar,
   Platform,
   I18nManager,
+  Alert,
+  Linking
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
+import * as Clipboard from 'expo-clipboard';
+import { shortName } from "@/lib/shortName";
+ import { router } from 'expo-router';
 // Force RTL layout for Arabic
 I18nManager.forceRTL(true);
 I18nManager.allowRTL(true);
@@ -39,10 +43,19 @@ const ProfileScreen = () => {
   const menuItems = [
     { id: "1", title: "مجموعاتي", icon: "people", color: colors.primary },
     { id: "2", title: "الأصدقاء", icon: "person", color: colors.primary },
-    { id: "3", title: "الإعدادات", icon: "settings", color: colors.primary },
+    { id: "3", title: "الإعدادات", icon: "settings", color: colors.primary  , path : '/(screens)/SettingsScreen' },
     { id: "4", title: "تعديل الملف", icon: "pencil", color: colors.primary },
     { id: "5", title: "المساعدة", icon: "help-circle", color: colors.primary },
   ];
+
+  const copyEmail = async () => {
+    await Clipboard.setStringAsync(userData.email);
+    Alert.alert("تم النسخ", "تم نسخ البريد الإلكتروني إلى الحافظة");
+  };
+
+  const sendEmail = () => {
+    Linking.openURL(`mailto:${userData.email}`);
+  };
 
   return (
     <View style={styles.container}>
@@ -54,17 +67,18 @@ const ProfileScreen = () => {
       >
         {/* Profile Header */}
         <View style={styles.profileHeader}>
-
           <View style={styles.userInfo}>
             <Text style={styles.name}>{userData.name}</Text>
-            <Text style={styles.email}>{userData.email}</Text>
-          </View>          <View style={styles.avatarContainer}>
+            <TouchableOpacity onPress={copyEmail}>
+              <Text style={styles.email}>{shortName(userData.email)}</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.avatarContainer}>
             <Image source={{ uri: userData.avatar }} style={styles.avatar} />
             <TouchableOpacity style={styles.editAvatarButton}>
               <Ionicons name="camera" size={16} color="white" />
             </TouchableOpacity>
           </View>
-          
         </View>
 
         {/* Stats Cards */}
@@ -77,12 +91,23 @@ const ProfileScreen = () => {
             <Text style={styles.statNumber}>42</Text>
             <Text style={styles.statLabel}>مجموعة</Text>
           </View>
+          {/* <TouchableOpacity style={styles.statCard} onPress={sendEmail}>
+            <Ionicons name="mail" size={24} color={colors.primary} />
+            <Text style={styles.statLabel}>إرسال بريد</Text>
+          </TouchableOpacity> */}
         </View>
 
         {/* Menu Items */}
         <View style={styles.menuContainer}>
           {menuItems.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.menuItem}>
+            <TouchableOpacity key={item.id} style={styles.menuItem}
+            
+            onPress={() => {
+                if (item.path) {
+                  router.push(item.path as any);
+                }
+              }}
+            >
               <View
                 style={[
                   styles.menuIconContainer,
@@ -90,7 +115,7 @@ const ProfileScreen = () => {
                 ]}
               >
                 <Ionicons
-                  name={item.icon}
+                  name={item.icon as any}
                   size={20}
                   color={item.color}
                 />
@@ -124,13 +149,13 @@ const ProfileScreen = () => {
               <Text style={styles.actionText}>إضافة</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionButton}>
+            <TouchableOpacity style={styles.actionButton} onPress={sendEmail}>
               <View
                 style={[styles.actionIcon, { backgroundColor: colors.primary }]}
               >
-                <Ionicons name="add" size={20} color="white" />
+                <Ionicons name="mail" size={20} color="white" />
               </View>
-              <Text style={styles.actionText}>جديد</Text>
+              <Text style={styles.actionText}>بريد</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -186,13 +211,12 @@ const styles = StyleSheet.create({
     fontSize: 22,
     color: colors.tertiary,
     marginBottom: 4,
-    fontFamily: "Cairo_Medium",
-    fontWeight: "700",
-  },
+     fontFamily: "Cairo_Bold",
+   },
   email: {
     fontSize: 15,
     color: colors.textSecondary,
-    fontFamily: "Cairo_Medium",
+    fontFamily: "Cairo_Medium"
   },
   statsContainer: {
     flexDirection: "row",
@@ -212,13 +236,12 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: colors.primary,
     marginBottom: 4,
-    fontFamily: "Cairo_Medium",
-    fontWeight: "700",
-  },
+     fontFamily: "Cairo_Bold",
+   },
   statLabel: {
     fontSize: 14,
     color: colors.textSecondary,
-    fontFamily: "Cairo_Medium",
+    fontFamily: "Cairo_Medium"
   },
   menuContainer: {
     backgroundColor: colors.card,
@@ -246,8 +269,8 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 16,
     color: colors.tertiary,
-    fontFamily: "Cairo_Medium",
     marginRight: 12,
+    fontFamily: "Cairo_Medium"
   },
   spacer: {
     flex: 1,
@@ -264,8 +287,7 @@ const styles = StyleSheet.create({
     color: colors.tertiary,
     marginBottom: 16,
     textAlign: "right",
-    fontFamily: "Cairo_Medium",
-    fontWeight: "700",
+    fontFamily: "Cairo_Bold"
   },
   actionsRow: {
     flexDirection: "row-reverse",
@@ -285,7 +307,7 @@ const styles = StyleSheet.create({
   actionText: {
     fontSize: 14,
     color: colors.tertiary,
-    fontFamily: "Cairo_Medium",
+    fontFamily: "Cairo_Medium"
   },
 });
 

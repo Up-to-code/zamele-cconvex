@@ -1,10 +1,9 @@
 import { Header } from "@/components/common";
 import { BottomTabBar } from "@/components/layout/BottomTabBar";
- import { Tabs } from "expo-router";
+import { router, Tabs } from "expo-router";
 import React from "react";
 import { SafeAreaView, View } from "react-native";
 import { useUserStore } from "@/lib/store/userStore";
-
 export default function RootLayout() {
   const { name, plan, avatarUrl } = useUserStore();
   return (
@@ -14,14 +13,21 @@ export default function RootLayout() {
         header: () => (
           <SafeAreaView style={{ backgroundColor: "#fff" }}>
             <View>
-              <Header name={name} plan={plan} avatarUrl={avatarUrl} />
-              </View>
+              <Header
+                onNotificationsPress={() =>
+                  router.push("/(screens)/NotificationsScreen")
+                }
+                name={name}
+                plan={plan}
+                avatarUrl={avatarUrl}
+              />
+            </View>
           </SafeAreaView>
         ),
         tabBarStyle: { display: "none", backgroundColor: "#fff" },
       }}
       tabBar={(props) => <BottomTabBar {...props} />}
-    > 
+    >
       <Tabs.Screen
         name="index"
         options={{

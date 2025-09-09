@@ -8,25 +8,26 @@ import {
   FlatList,
   StatusBar,
   Platform,
-  useWindowDimensions,
   ScrollView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-// Define TypeScript interfaces
-interface Group {
-  id: string;
-  name: string;
-  members: number;
-  lastActive: string;
-  image: string;
-  isPrivate: boolean;
-  unreadCount: number;
-  memberAvatars?: string[];
-}
+// Force RTL layout for Arabic
+I18nManager.forceRTL(true);
+I18nManager.allowRTL(true);
 
-// Mock data for groups with proper typing
-const groupsData: Group[] = [
+const colors = {
+  primary: "#007AFF",
+  secondary: "#5856D6",
+  tertiary: "#000000",
+  background: "#F2F2F7",
+  card: "#FFFFFF",
+  border: "#C6C6C8",
+  textSecondary: "#8E8E93",
+};
+
+// Mock data for groups
+const groupsData = [
   {
     id: "1",
     name: "مطوري React Native",
@@ -36,11 +37,6 @@ const groupsData: Group[] = [
       "https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&q=80",
     isPrivate: false,
     unreadCount: 3,
-    memberAvatars: [
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&q=80",
-      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&q=80",
-      "https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&q=80",
-    ],
   },
   {
     id: "2",
@@ -51,10 +47,6 @@ const groupsData: Group[] = [
       "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&q=80",
     isPrivate: true,
     unreadCount: 0,
-    memberAvatars: [
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&q=80",
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&q=80",
-    ],
   },
   {
     id: "3",
@@ -65,11 +57,6 @@ const groupsData: Group[] = [
       "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&q=80",
     isPrivate: false,
     unreadCount: 12,
-    memberAvatars: [
-      "https://images.unsplash.com/photo-1599566150163-29194dcaad36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&q=80",
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&q=80",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&q=80",
-    ],
   },
   {
     id: "4",
@@ -80,145 +67,110 @@ const groupsData: Group[] = [
       "https://images.unsplash.com/photo-1544947950-fa07a98d237f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&q=80",
     isPrivate: true,
     unreadCount: 0,
-    // Intentionally leaving memberAvatars undefined to test error handling
+  },
+  {
+    id: "5",
+    name: "مجموعة الرياضة",
+    members: 156,
+    lastActive: "نشط منذ ساعة",
+    image:
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&q=80",
+    isPrivate: false,
+    unreadCount: 5,
   },
 ];
 
-// Custom ParallaxScrollView component
-const ParallaxScrollView = ({
-  children,
-  backgroundColor = "#FFFFFF",
-}: {
-  children: React.ReactNode;
-  backgroundColor?: string;
-}) => {
-  const { height } = useWindowDimensions();
-
-  return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor }}
-      contentContainerStyle={{
-        minHeight: height,
-      }}
-      scrollEventThrottle={16}
-      showsVerticalScrollIndicator={false}
-    >
-      {children}
-    </ScrollView>
-  );
-};
-
-// Promotional banner component
-const PromoBanner = () => {
-  const { width } = useWindowDimensions();
-
-  return (
-    <View style={[styles.banner, { width: width - 32 }]}>
-      <View style={styles.bannerContent}>
-        <Text style={styles.bannerTitle}>انضم إلى مجتمعنا</Text>
-        <Text style={styles.bannerText}>
-          اكتشف مجموعات جديدة تناسب اهتماماتك
-        </Text>
-        <TouchableOpacity style={styles.bannerButton}>
-          <Text style={styles.bannerButtonText}>استكشف الآن</Text>
-        </TouchableOpacity>
-      </View>
-      <Image
-        source={{
-          uri:
-            "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&q=80",
-        }}
-        style={styles.bannerImage}
-      />
-    </View>
-  );
-};
-
 const GroupsScreen = () => {
-  const [groups, setGroups] = useState<Group[]>(groupsData);
-  const { width } = useWindowDimensions();
+  const [groups, setGroups] = useState(groupsData);
 
-  const renderGroupItem = ({ item }: { item: Group }) => {
-    // Safe handling of memberAvatars to prevent undefined errors
-    const memberAvatars = item.memberAvatars || [];
-
-    return (
-      <TouchableOpacity style={styles.groupCard}>
-        <Image
-          source={{ uri: item.image }}
-          style={[
-            styles.groupImage,
-            { width: width * 0.14, height: width * 0.14 },
-          ]}
-        />
-        <View style={styles.groupInfo}>
-          <View style={styles.groupHeader}>
-            <Text style={styles.groupName} numberOfLines={1}>
-              {item.name}
-            </Text>
-            {item.isPrivate && (
-              <Ionicons
-                name="lock-closed"
-                size={16}
-                color="#8E8E93"
-                style={styles.lockIcon}
-              />
-            )}
-          </View>
-
-          <View style={styles.memberAvatars}>
-            {memberAvatars.map((avatar, index) => (
-              <Image
-                key={index}
-                source={{ uri: avatar }}
-                style={[
-                  styles.memberAvatar,
-                  { marginLeft: index > 0 ? -8 : 0 },
-                ]}
-              />
-            ))}
-            <Text style={styles.memberCount}>+{item.members} أعضاء</Text>
-          </View>
-
-          <View style={styles.groupDetails}>
-            <Text style={styles.groupActivity}>{item.lastActive}</Text>
-          </View>
-        </View>
-
-        <View style={styles.groupRightSection}>
-          {item.unreadCount > 0 && (
-            <View style={styles.unreadBadge}>
-              <Text style={styles.unreadText}>{item.unreadCount}</Text>
-            </View>
+  const renderGroupItem = ({ item }) => (
+    <TouchableOpacity style={styles.groupCard}>
+      <Image source={{ uri: item.image }} style={styles.groupImage} />
+      
+      <View style={styles.groupInfo}>
+        <View style={styles.groupHeader}>
+          <Text style={styles.groupName} numberOfLines={1}>
+            {item.name}
+          </Text>
+          {item.isPrivate && (
+            <Ionicons
+              name="lock-closed"
+              size={16}
+              color={colors.textSecondary}
+              style={styles.lockIcon}
+            />
           )}
-          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
         </View>
-      </TouchableOpacity>
-    );
-  };
+        
+        <View style={styles.groupDetails}>
+          <Text style={styles.memberCount}>{item.members} أعضاء</Text>
+          <Text style={styles.groupActivity}>{item.lastActive}</Text>
+        </View>
+      </View>
+      
+      <View style={styles.groupRightSection}>
+        {item.unreadCount > 0 && (
+          <View style={styles.unreadBadge}>
+            <Text style={styles.unreadText}>{item.unreadCount}</Text>
+          </View>
+        )}
+        <Ionicons name="chevron-back" size={20} color={colors.border} />
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
 
-      <ParallaxScrollView>
-        <View style={styles.listContent}>
-          {/* Fixed Header */}
-          <View style={styles.listHeader}>
-            <Text style={styles.listTitle}>المجموعات</Text>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>المجموعات</Text>
+        <TouchableOpacity style={styles.createButton}>
+          <Ionicons name="add" size={24} color={colors.primary} />
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={groups}
+        renderItem={renderGroupItem}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <View style={styles.promoSection}>
+            <View style={styles.promoCard}>
+              <View style={styles.promoContent}>
+                <Text style={styles.promoTitle}>انضم إلى مجتمعنا</Text>
+                <Text style={styles.promoText}>
+                  اكتشف مجموعات جديدة تناسب اهتماماتك
+                </Text>
+                <TouchableOpacity style={styles.promoButton}>
+                  <Text style={styles.promoButtonText}>استكشف الآن</Text>
+                </TouchableOpacity>
+              </View>
+              <Image
+                source={{
+                  uri: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&q=80",
+                }}
+                style={styles.promoImage}
+              />
+            </View>
+            
+            <View style={styles.statsContainer}>
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>{groups.length}</Text>
+                <Text style={styles.statLabel}>المجموعات</Text>
+              </View>
+              <View style={styles.statCard}>
+                <Text style={styles.statNumber}>
+                  {groups.reduce((total, group) => total + group.members, 0)}
+                </Text>
+                <Text style={styles.statLabel}>الأعضاء</Text>
+              </View>
+            </View>
           </View>
-          <PromoBanner />
-
-          <FlatList
-            data={groups}
-            renderItem={renderGroupItem}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            showsVerticalScrollIndicator={false}
-            ItemSeparatorComponent={() => <View style={styles.separator} />}
-          />
-        </View>
-      </ParallaxScrollView>
+        }
+      />
     </View>
   );
 };
@@ -226,82 +178,111 @@ const GroupsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.background,
   },
-  listHeader: {
-    position: "absolute",
-    top: Platform.OS === "android" ? StatusBar.currentHeight : 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#E5E5EA",
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === "android" ? (StatusBar.currentHeight || 0) + 20 : 60,
+    paddingBottom: 16,
+    backgroundColor: colors.background,
   },
-  listTitle: {
+  headerTitle: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#000000",
-    textAlign: "right",
-    fontFamily: "Cairo_Bold",
+    color: colors.tertiary,
+  },
+  createButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: `${colors.primary}15`,
+    justifyContent: "center",
+    alignItems: "center",
   },
   listContent: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingBottom: 20,
-    paddingTop: 80, // Space for the fixed header
   },
-  banner: {
+  promoSection: {
+    marginBottom: 24,
+  },
+  promoCard: {
     flexDirection: "row",
-    backgroundColor: "#F2F8FF",
-    borderRadius: 14,
+    backgroundColor: colors.card,
+    borderRadius: 12,
     padding: 16,
     alignItems: "center",
-    overflow: "hidden",
-    marginBottom: 20,
-    alignSelf: "center",
+    marginBottom: 16,
   },
-  bannerContent: {
+  promoContent: {
     flex: 1,
     alignItems: "flex-end",
   },
-  bannerTitle: {
+  promoTitle: {
     fontSize: 18,
-    fontFamily: "Cairo_Bold",
-    color: "#007AFF",
+    fontWeight: "700",
+    color: colors.primary,
     marginBottom: 4,
   },
-  bannerText: {
+  promoText: {
     fontSize: 14,
-    fontFamily: "Cairo_Regular",
-    color: "#515151",
+    color: colors.textSecondary,
     marginBottom: 12,
     textAlign: "right",
   },
-  bannerButton: {
-    backgroundColor: "#007AFF",
+  promoButton: {
+    backgroundColor: colors.primary,
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 8,
   },
-  bannerButtonText: {
+  promoButtonText: {
     color: "#FFFFFF",
-    fontFamily: "Cairo_SemiBold",
+    fontWeight: "600",
     fontSize: 14,
   },
-  bannerImage: {
+  promoImage: {
     width: 80,
     height: 80,
     borderRadius: 10,
     marginLeft: 12,
   },
+  statsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  statCard: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    flex: 1,
+    marginHorizontal: 6,
+  },
+  statNumber: {
+    fontSize: 20,
+    color: colors.primary,
+    marginBottom: 4,
+    fontWeight: "700",
+  },
+  statLabel: {
+    fontSize: 14,
+    color: colors.textSecondary,
+  },
   groupCard: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 16,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
   },
   groupImage: {
+    width: 60,
+    height: 60,
     borderRadius: 12,
     marginLeft: 12,
   },
@@ -317,65 +298,41 @@ const styles = StyleSheet.create({
   },
   groupName: {
     fontSize: 17,
-    color: "#000000",
-    textAlign: "right",
-    fontFamily: "Cairo_SemiBold",
+    color: colors.tertiary,
+    fontWeight: "600",
   },
   lockIcon: {
     marginLeft: 6,
   },
-  memberAvatars: {
+  groupDetails: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "center",
-    marginBottom: 6,
-  },
-  memberAvatar: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: "#FFFFFF",
+    justifyContent: "space-between",
   },
   memberCount: {
     fontSize: 14,
-    color: "#8E8E93",
-    marginRight: 8,
-    fontFamily: "Cairo_Regular",
-  },
-  groupDetails: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
+    color: colors.textSecondary,
   },
   groupActivity: {
-    fontSize: 15,
-    color: "#8E8E93",
-    textAlign: "right",
-    fontFamily: "Cairo_Regular",
+    fontSize: 14,
+    color: colors.textSecondary,
   },
   groupRightSection: {
     flexDirection: "row",
     alignItems: "center",
   },
   unreadBadge: {
-    backgroundColor: "#007AFF",
+    backgroundColor: colors.primary,
     borderRadius: 16,
-    minWidth: 22,
-    height: 22,
+    minWidth: 24,
+    height: 24,
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 8,
   },
   unreadText: {
     color: "#FFFFFF",
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "600",
-    fontFamily: "Cairo_SemiBold",
-  },
-  separator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: "#E5E5EA",
-    marginRight: 72,
   },
 });
 
